@@ -38,8 +38,7 @@ class String
       (index_max = kan.index(k); value = v; key = k; break) if kan.include?(k)
     end
     (return (value + kan_to_num(kan[key.length..kan.length - 1])) unless kan[key.length].nil?; return value) if index_max == 0
-    return kan_to_num(kan[0..index_max - 1]) * value + kan_to_num(kan[index_max \
-           + key.length..kan.length - 1]) unless kan[index_max + key.length].nil?
+    return kan_to_num(kan[0..index_max - 1]) * value + kan_to_num(kan[index_max + key.length..kan.length - 1]) unless kan[index_max + key.length].nil?
     kan_to_num(kan[0..index_max - 1]) * value
   end
 
