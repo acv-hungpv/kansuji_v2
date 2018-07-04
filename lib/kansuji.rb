@@ -10,38 +10,31 @@ end
 class Integer
   include Kansuji
   def num_to_kan(num)
-    return Kansuji.init_num_char[num] unless Kansuji.init_num_char[num].nil?; f_num, fval, sec = nil
-    Kansuji.init_num_char.each { |key, value| (f_num = num / key; fval = value; sec = num - f_num * key;\
-                                 break) if num / key >= 1 }
+    return Kansuji.init_num_char[num] unless Kansuji.init_num_char[num].nil?
+    key, value = Kansuji.init_num_char.find { |k, v| num / k >= 1 }
+    f_num = num / key; fval = value; sec = num - f_num * key
     return (num_to_kan(f_num) + fval + num_to_kan(sec)) if f_num != 1 && sec != 0
     return (fval + num_to_kan(sec)) if f_num == 1 && sec != 0
     return (num_to_kan(f_num) + fval) if sec == 0 && f_num != 1
   end
 
   def to_kansuji
-    result, index_max, value  = num_to_kan(self), -1, -1
-    Kansuji.init_num_char.invert.each { |k, v| (index_max = result.index(k); value = v; break) \
-                                        if result.include?(k) }
-    return '一' + result if index_max == 0 && value >= 10000; result
+    result = num_to_kan(self)
+    key, value = Kansuji.init_num_char.invert.find { |k, v| result.include?(k) }
+    return '一' + result if result.index(key) == 0 && value >= 10000; result
   end
 end
 
 class String
   include Kansuji
-  def kan_to_num(kan)
+  def to_number(kan = self.gsub(/[\w]|[\s]/, ''))
+    return 0 if kan == ''
     return Kansuji.init_num_char.invert[kan] unless Kansuji.init_num_char.invert[kan].nil?
-    index_max, value, key = nil
-    Kansuji.init_num_char.invert.each { |k, v| (index_max = kan.index(k); value = v; key = k; break) \
-                                        if kan.include?(k) }
-    (return (value + kan_to_num(kan[key.length..kan.length - 1])) unless kan[key.length].nil?;\
-                                                               return value) if index_max == 0
-    return kan_to_num(kan[0..index_max - 1]) * value + kan_to_num(kan[index_max + \
-                key.length..kan.length - 1]) unless kan[index_max + key.length].nil?
-    return kan_to_num(kan[0..index_max - 1]) * value
-  end
-
-  def to_number
-    raise_error(NoMethodError) unless is_a? String; return 0 if gsub(/[\w]|[\s]/, '') == ''
-    kan_to_num(gsub(/[\w]|[\s]/, ''))
+    key, value = Kansuji.init_num_char.invert.find { |k, v| kan.include?(k) }
+    (return (value + to_number(kan[key.length..kan.length - 1])) unless kan[key.length].nil?;\
+                                                               return value) if kan.index(key) == 0
+    return to_number(kan[0..kan.index(key) - 1]) * value + to_number(kan[kan.index(key) + \
+                key.length..kan.length - 1]) unless kan[kan.index(key) + key.length].nil?
+    return to_number(kan[0..kan.index(key) - 1]) * value
   end
 end
