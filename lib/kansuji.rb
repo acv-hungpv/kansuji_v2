@@ -7,24 +7,21 @@ module Kansuji
                      7 => '七', 6 => '六', 5 => '五', 4 => '四', 3 => '三', 2 => '二', 1 => '一', 0 => '零' }
 end
 
-class Numeric
+class Integer
   include Kansuji
   def num_to_kan(num)
     return Kansuji.init_num_char[num] unless Kansuji.init_num_char[num].nil?; f_num, fval, sec = nil
-    Kansuji.init_num_char.each do |key, value|
-      (f_num = num / key; fval = value; sec = num - f_num * key; break) if num / key >= 1
-    end
+    Kansuji.init_num_char.each { |key, value| (f_num = num / key; fval = value; sec = num - f_num * key;\
+                                 break) if num / key >= 1 }
     return (num_to_kan(f_num) + fval + num_to_kan(sec)) if f_num != 1 && sec != 0
     return (fval + num_to_kan(sec)) if f_num == 1 && sec != 0
     return (num_to_kan(f_num) + fval) if sec == 0 && f_num != 1
   end
 
   def to_kansuji
-    return raise_error(NoMethodError) unless is_a? Integer
     result, index_max, value  = num_to_kan(self), -1, -1
-    Kansuji.init_num_char.invert.each do |k, v|
-      (index_max = result.index(k); value = v; break) if result.include?(k)
-    end
+    Kansuji.init_num_char.invert.each { |k, v| (index_max = result.index(k); value = v; break) \
+                                        if result.include?(k) }
     return '一' + result if index_max == 0 && value >= 10000; result
   end
 end
@@ -34,12 +31,13 @@ class String
   def kan_to_num(kan)
     return Kansuji.init_num_char.invert[kan] unless Kansuji.init_num_char.invert[kan].nil?
     index_max, value, key = nil
-    Kansuji.init_num_char.invert.each do |k, v|
-      (index_max = kan.index(k); value = v; key = k; break) if kan.include?(k)
-    end
-    (return (value + kan_to_num(kan[key.length..kan.length - 1])) unless kan[key.length].nil?; return value) if index_max == 0
-    return kan_to_num(kan[0..index_max - 1]) * value + kan_to_num(kan[index_max + key.length..kan.length - 1]) unless kan[index_max + key.length].nil?
-    kan_to_num(kan[0..index_max - 1]) * value
+    Kansuji.init_num_char.invert.each { |k, v| (index_max = kan.index(k); value = v; key = k; break) \
+                                        if kan.include?(k) }
+    (return (value + kan_to_num(kan[key.length..kan.length - 1])) unless kan[key.length].nil?;\
+                                                               return value) if index_max == 0
+    return kan_to_num(kan[0..index_max - 1]) * value + kan_to_num(kan[index_max + \
+                key.length..kan.length - 1]) unless kan[index_max + key.length].nil?
+    return kan_to_num(kan[0..index_max - 1]) * value
   end
 
   def to_number
